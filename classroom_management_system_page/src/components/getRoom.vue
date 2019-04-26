@@ -41,7 +41,7 @@
   <div>
     <el-table
       :data="tableData"
-      style="width: 100%" @row-click="openDetails">
+      style="width: 100%">
       <el-table-column
         prop=teachingBuilding
         label="教学楼"
@@ -51,9 +51,6 @@
         prop="roomNumber"
         label="教室号"
         width="65">
-        <template slot-scope="scope" style="display: none">
-          {{scope.$index+1}}
-        </template>
       </el-table-column>
       <el-table-column
         prop="seatsNumber"
@@ -61,14 +58,12 @@
       </el-table-column>
       <el-table-column
         prop="roomLocal"
-        label="教室地址" width="80" >
+        label="教室地址" width="80">
       </el-table-column>
-      <el-table-column prop="id" label="操作" width="80" @blur="reid">
-        <template slot-scope="{row}">
-          <div>
-            <span @click="insertInfor(row.id)">详情</span>
-          </div>
-        </template>
+      <el-table-column
+        prop="id"
+        label="操作" width="80" >
+        <span @click="insertInfor">详情</span>
       </el-table-column>
     </el-table>
   </div>
@@ -77,34 +72,33 @@
 
 <script>
   import axios from 'axios'
-  import Bus from '../assets/Bus.js'
     export default {
         name: "getRoom",
       data(){
           return{
+            value1: '',
+            value2:'',
             teachingBuilding:'',
             roomNumber:'',
             seatsNumber:'',
             roomLocal:'',
             input5:'',
             id:'',
-            tableData:this.tableData,
+            tableData:[],
             options: [{
-              value1: '选项1',
+              value1: '教1',
               label: '教一'
             }, {
-              value1: '选项2',
+              value1: '教2',
               label: '教二'
             }],
             roomsize:[{
-              value2:'选项一',
+              value2:'1',
               label:'大'
             },{
-              value2:'选项二',
+              value2:'2',
               label:'小'
-            }],
-            value1: '',
-            value2:''
+            }]
           }
       },
       mounted:function(){
@@ -130,46 +124,33 @@
         })
       },
       methods:{
-        openDetails(row, event, column){
-          let reid=row.id
-          this.id=reid
-          console.log(this.id)
-          console.log(row.id)
-        },
         tohome:function () {
           this.$router.push({path:'./#',query:{'userId': this.userId}})
         },
-        insertInfor: function (id) {
-          this.$router.push({
-            path: './insertInfor',
-            query: {
-              id
-            }
-          })
+        insertInfor:function(){
+          this.$router.push({path:'./insertInfor',query:{'userId': this.userId,'id': this.id}})
+          console.log(id)
         },
-        room : function(){
-          let self = this
-          let data1 = ({
-            "teachingBuilding": this.options,
-            "size": this.roomsize,
-            "room_number":this.input5
-          })
-          console.log(data1)
-          axios({
-            method: 'get',
-            url: 'http://yizhuoyang.free.idcfengye.com/cls/getRoomByCondition',
-            data: data1
-          }).then((response) => {
-            let tableData=[]
-            console.log(eval(response.data.data))
+room : function(){
+  let self = this
+  axios.get( 'http://yizhuoyang.free.idcfengye.com/cls/getRoomByCondition', {
+    params: {
+      "teachingBuilding": this.value1,
+      "size": this.value2 ,
+      "room_number":this.input5
+      }
+  })
+    .then((response) => {
+    let tableData=[]
+    console.log(eval(response.data.data))
 
-           self.tableData = eval(response.data.data)
-            console.log(self.tableData)
-           console.log(self.tableData[i].id)
-
-          }).catch(error => function () {
-          })
-        }
+    self.tableData = eval(response.data.data)
+    console.log(self.tableData)
+    })
+    .catch(function (err) {
+      console.log(err);
+    })
+}
       }
     }
 </script>
