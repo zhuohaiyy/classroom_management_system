@@ -119,7 +119,7 @@ response:
 #### 获得具体教室信息
 Method: GET
 
-URL: /cls/getRoomDetailByIdAndDate
+URL: /cls/getRoomDetailById
 
 ```
 request:
@@ -225,7 +225,7 @@ response:
 #### 审批界面显示
 Method: GET
 
-URL: /rsv/high/getApprovalDetail
+URL: /rsv/getApprovalDetail
 
 ```
 request:
@@ -243,7 +243,7 @@ response:
 #### 审批界面操作
 Method: GET
 
-URL: /rsv/high/approvalOperation
+URL: /rsv/approvalOperation
 
 ```
 request:
