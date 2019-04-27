@@ -113,12 +113,12 @@
         console.log(data1)
         axios({
           method: 'get',
-          url: 'http://yizhuoyang.free.idcfengye.com/cls/getRoomList',
+          url: 'http://localhost:80/cls/getRoomList',
           data: data1
         }).then((response) => {
           let tableData = []
 
-          self.tableData = response.data.data.parse()
+          self.tableData = JSON.parse(response.data.data)
 
         }).catch(error => function () {
         })
@@ -131,26 +131,93 @@
           this.$router.push({path:'./insertInfor',query:{'userId': this.userId,'id': this.id}})
           console.log(id)
         },
-room : function(){
-  let self = this
-  axios.get( 'http://yizhuoyang.free.idcfengye.com/cls/getRoomByCondition', {
-    params: {
-      "teachingBuilding": this.value1,
-      "size": this.value2 ,
-      "room_number":this.input5
-      }
-  })
-    .then((response) => {
-    let tableData=[]
-    console.log(eval(response.data.data))
+        room : function(){
+          if(this.value1 ===""&&this.value2 ===""&&this.input5===""){
+            let self = this
+            axios.get( 'http://localhost:80/cls/getRoomByCondition', {
+              params: {}})
+              .then((response) => {
+                let tableData=[]
+                console.log(eval(response.data.data))
 
-    self.tableData = eval(response.data.data)
-    console.log(self.tableData)
-    })
-    .catch(function (err) {
-      console.log(err);
-    })
-}
+                self.tableData = eval(response.data.data)
+                console.log(self.tableData)
+              })
+              .catch(function (err) {
+                console.log(err);
+              })
+          }
+          else if(this.value1 ===""){
+            let self = this
+            axios.get( 'http://localhost:80/cls/getRoomByCondition', {
+              params:{
+                         "size": this.value2,
+                         "room_number": this.input5}  })
+              .then((response) => {
+                let tableData=[]
+                console.log(eval(response.data.data))
+
+                self.tableData = eval(response.data.data)
+                console.log(self.tableData)
+              })
+              .catch(function (err) {
+                console.log(err);
+              })
+          }
+          else if(this.value2 ===""){
+            let self = this
+            axios.get( 'http://localhost:80/cls/getRoomByCondition', {
+              params:{ "teachingBuilding": this.value1,
+                "room_number": this.input5}  })
+              .then((response) => {
+                let tableData=[]
+                console.log(eval(response.data.data))
+
+                self.tableData = eval(response.data.data)
+                console.log(self.tableData)
+              })
+              .catch(function (err) {
+                console.log(err);
+              })
+          }
+
+          else if(this.input5===""){
+            let self = this
+            axios.get( 'http://localhost:80/cls/getRoomByCondition', {
+              params:{ "teachingBuilding": this.value1,
+                "size": this.value2}  })
+              .then((response) => {
+                let tableData=[]
+                console.log(eval(response.data.data))
+
+                self.tableData = eval(response.data.data)
+                console.log(self.tableData)
+              })
+              .catch(function (err) {
+                console.log(err);
+              })
+          }
+
+          else if(this.value1 !==""&&this.value2 !==""&&this.input5!==""){
+            let self = this
+            axios.get( 'http://localhost:80/cls/getRoomByCondition', {
+              params:{ "teachingBuilding": this.value1,
+                "size": this.value2,
+                "room_number": this.input5}  })
+              .then((response) => {
+                let tableData=[]
+                console.log(eval(response.data.data))
+
+                self.tableData = eval(response.data.data)
+                console.log(self.tableData)
+              })
+              .catch(function (err) {
+                console.log(err);
+              })
+          }
+
+
+        }
       }
     }
 </script>

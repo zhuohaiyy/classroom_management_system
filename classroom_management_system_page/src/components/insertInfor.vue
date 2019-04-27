@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <div id="title" @click="getmsge">教室预约</div>
+      <div id="title" >教室预约</div>
       <i class="el-icon-arrow-left" @click="tohome"></i>
     </header>
     <p>教室详情</p>
@@ -27,19 +27,26 @@
     </el-row><br>
     <span>请选择日期</span>
     <div>
-      <div class="block">
-        <el-date-picker
-          v-model="value7"
-          size="mini"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions2">
-        </el-date-picker>
-      </div>
+      <!--<div class="block">
+        <mt-datetime-picker
+          v-model="pickerValue"
+          type="date"
+          year-format="{value} 年"
+          month-format="{value} 月"
+          date-format="{value} 日"
+          @confirm="handleConfirm()"
+        >开始
+        </mt-datetime-picker>
+        <mt-datetime-picker
+          v-model="pickerValue"
+          ref="picker"
+          type="time"
+          year-format="{value} 年"
+          month-format="{value} 月"
+          date-format="{value} 日"
+        >
+        </mt-datetime-picker>
+      </div>-->
       <div>
         <el-table :data="tableData" style="width: 100%">
           <el-table-column
@@ -70,7 +77,14 @@
 </template>
 
 <script>
+  import 'mint-ui/lib/style.min.css'
   import axios from 'axios'
+  import { Toast } from 'mint-ui'
+  import { MessageBox } from 'mint-ui'
+  import { setCookie,getCookie,delCookie } from '../assets/cookie.js'
+  import { DatetimePicker } from 'mint-ui'
+  /*Vue.component(DatetimePicker.name, DatetimePicker)*/
+  import Bus from '../assets/Bus.js'
     export default {
         name: "insertInfor",
       data(){
@@ -81,7 +95,7 @@
           roomNumber:'',
           seatsNumber:'',
           roomLocal:'',
-          id:'',
+          id:this.id,
           status:'',
           st:'',
           time:'',
@@ -101,92 +115,15 @@
           value6: '',
           value7: '',
           date:''
-      }
-      },
-
-      created () {
-        let userId = this.$route.query.userId
-        let id = this.$route.query.id
-        this.userId = userId
-        this.id = id
-        console.log(this.userId)
-        console.log(this.id)
-        this.getmsge()
-      },
-      methods:{
-        open3() {
-          this.$prompt('请输入理由', '提示', {
-            confirmButtonText: '确定',
-
-          }).then(({ value }) => {
-            this.$message({
-              type: 'success',
-              message: '理由: ' + value
-            });
-          }).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '取消输入'
-            });
-          });
-      },
-        open1() {
-          this.$alert('预约成功', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.$message({
-                type: 'info',
-                roundButton:ture,
-                message: `action: ${ action }`
-              });
-            }
-          });
-
-        },
-        open2() {
-          Toast({
-            message: '预约失败',
-            iconClass: 'icon icon-success'
-          });
-
-        },
-        toinserfor:function(){
-          let self = this
-          axios.post( 'http://yizhuoyang.free.idcfengye.com/rsv/insertInfo', {
-            params: {
-              "roomId": "1",
-              "date": "20190306",
-              "time": "3",
-              "userId": "10000111",
-              "userName": "zhangsan",
-              "reservationDesc": "计算机协会又来了"
-            }
-          })
-            .then(function (response) {
-              console.log(response.data.message)
-              if(response.data.message==='success'){
-                  self.open1()
-              }
-              else if(response.data.message==='fail'){
-               self.open2()
-              }
-            })
-            .catch(function (err) {
-              console.log(err);
-            })
-        },
-        tohome:function () {
-          this.$router.push({path:'./#',query:{'userId': this.userId}})
-        },
-        getmsge:function(){
-          let self = this
-          axios.get( 'http://yizhuoyang.free.idcfengye.com/cls/getRoomDetailByIdAndDate', {
-            params: {
-              'id': '1',
-              'date':'20190413'
         }
-        })
-        .then(function (response) {
+      },
+      created() {
+        axios.get('http://localhost:80/cls/getRoomDetailByIdAndDate', {
+          params: {
+            'id': '1',
+            "date": "20190423"
+          }
+        }).then((response) => {
           console.log(response.data.data)
           let tableData=[]
           let data =eval(response.data.data)
@@ -199,10 +136,89 @@
           self.teachingBuilding=roomdata.teachingBuilding
           self.multimediaEquipment=roomdata.multimediaEquipment
         })
+          .catch(function (err) {
+            console.log(err);
+          })
+      },
+      mounted(){
+        /*页面挂载获取保存的cookie值，渲染到页面上*/
+        let uname = getCookie('userId')
+        console.log(uname)
+        this.userId = uname
+        /*如果cookie不存在，则跳转到登录userId页*/
+        if(uname === ""){
+          this.userId = '登录/注册'
+        }
+      },
+      methods:{
+        selectData () { // 打开时间选择器
+
+          if (this.selectedValue) {
+            this.dateVal = this.selectedValue
+          } else {
+            this.dateVal = new Date()
+          }
+          this.$refs['datePicker'].open()
+        },
+        dateConfirm () { // 时间选择器确定按钮，并把时间转换成我们需要的时间格式
+          this.selectedValue = formatDateMin(this.dateVal)
+      },
+        openPicker() {
+          this.$refs.picker.open();
+        },
+        open3() {
+          MessageBox.prompt('请输入理由').then(({ value, action }) => {
+            this.$message({
+              type: 'success',
+              message: '理由: ' + value
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '取消输入'
+            });
+          });
+      },
+        open1() {
+          Toast({
+            message: '预约成功',
+            iconClass: 'icon icon-success'
+          });
+        },
+        open2() {
+        Toast({
+        message: '预约失败',
+        iconClass: 'icon icon-success'
+        });
+
+        },
+        toinserfor:function(){
+          let self = this
+          axios.post( 'http://yizhuoyang.free.idcfengye.com/rsv/insertInfo', {
+            params: {
+              "roomId": this.$route.query.id,
+              "date": "20190306",
+              "time": "3",
+              "userId": this.userId,
+              "userName": "zhangsan",
+              "reservationDesc": "计算机协会又来了"
+            }
+          })
+            .then(function (response) {
+              console.log(response.data.message)
+              if(response.data.message==='success'){
+                self.open1()
+              }else{
+                self.open2()
+              }
+            })
             .catch(function (err) {
               console.log(err);
             })
         },
+        tohome:function () {
+          this.$router.push({path:'./'})
+        }
       }
     }
 </script>
@@ -227,5 +243,10 @@
     height: 1.58rem;
     line-height: 1.68rem;
     margin-bottom: 1rem;
+  }
+  .block{
+    height: 2rem;
+    width: 100%;
+    background-color: #ccc;
   }
 </style>

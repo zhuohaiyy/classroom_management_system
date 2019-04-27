@@ -11,13 +11,14 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="demo" target="1.8" />
+      <module name="classroom_features" target="1.8" />
+      <module name="classroom_management_system" target="1.8" />
+      <module name="qr_code" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="classroom_features" options="-parameters" />
-      <module name="demo" options="-parameters" />
       <module name="qr_code" options="-parameters" />
     </option>
   </component>

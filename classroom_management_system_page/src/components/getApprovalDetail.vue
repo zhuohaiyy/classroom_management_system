@@ -155,7 +155,7 @@
         console.log(data1)
         axios({
           method: 'get',
-          url: 'http://yizhuoyang.free.idcfengye.com/rsv/high/getApprovalDetail',
+          url: 'http://localhost:80/rsv/high/getApprovalDetail',
           data: data1
         }).then((response) => {
           console.log(response)
